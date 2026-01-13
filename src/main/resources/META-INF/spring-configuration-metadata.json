@@ -1,0 +1,33 @@
+{
+  "properties": [
+    {
+      "name": "app.upload.dir",
+      "type": "java.lang.String",
+      "description": "Directory where uploaded files will be stored",
+      "defaultValue": "uploads"
+    },
+    {
+      "name": "app.upload.max-file-size",
+      "type": "java.lang.Long",
+      "description": "Maximum file size in bytes",
+      "defaultValue": 5242880
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "JWT secret key for signing tokens"
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "JWT token expiration time in milliseconds",
+      "defaultValue": 3600000
+    },
+    {
+      "name": "google.client-id",
+      "type": "java.lang.String",
+      "description": "Google OAuth2 Client ID for token verification",
+      "defaultValue": "your-google-client-id"
+    }
+  ]
+}
