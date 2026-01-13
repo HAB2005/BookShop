@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Domain service for category validation rules.
- * Encapsulates all business validation logic for categories.
+ * Domain service for category validation rules. Encapsulates all business
+ * validation logic for categories.
  */
 @Slf4j
 @Service
@@ -22,7 +22,7 @@ public class CategoryValidationService {
 
     /**
      * Validates slug uniqueness for new category creation.
-     * 
+     *
      * @param slug the slug to validate (must not be null or empty)
      * @throws ValidationException if slug is invalid or already exists
      */
@@ -41,11 +41,13 @@ public class CategoryValidationService {
     }
 
     /**
-     * Validates slug uniqueness for category update (excluding current category).
-     * 
-     * @param slug       the slug to validate (must not be null or empty)
+     * Validates slug uniqueness for category update (excluding current
+     * category).
+     *
+     * @param slug the slug to validate (must not be null or empty)
      * @param categoryId the current category ID to exclude (must not be null)
-     * @throws ValidationException if parameters are invalid or slug already exists
+     * @throws ValidationException if parameters are invalid or slug already
+     * exists
      */
     public void validateSlugUniquenessForUpdate(String slug, Integer categoryId) {
         if (slug == null || slug.trim().isEmpty()) {
@@ -68,9 +70,10 @@ public class CategoryValidationService {
 
     /**
      * Validates parent category business rules.
-     * 
+     *
      * @param parentId the parent category ID to validate (must not be null)
-     * @throws ValidationException if parentId is null or parent category is invalid
+     * @throws ValidationException if parentId is null or parent category is
+     * invalid
      */
     public void validateParentCategory(Integer parentId) {
         if (parentId == null) {
@@ -90,11 +93,11 @@ public class CategoryValidationService {
 
     /**
      * Validates circular reference prevention.
-     * 
+     *
      * @param categoryId the category ID being updated (must not be null)
-     * @param parentId   the new parent ID (must not be null)
-     * @throws ValidationException if any parameter is null or circular reference is
-     *                             detected
+     * @param parentId the new parent ID (must not be null)
+     * @throws ValidationException if any parameter is null or circular
+     * reference is detected
      */
     public void validateCircularReference(Integer categoryId, Integer parentId) {
         if (categoryId == null) {
@@ -126,10 +129,10 @@ public class CategoryValidationService {
 
     /**
      * Validates category deactivation rules.
-     * 
+     *
      * @param categoryId the category ID to validate (must not be null)
      * @throws ValidationException if categoryId is null or category has active
-     *                             children
+     * children
      */
     public void validateCategoryDeactivation(Integer categoryId) {
         if (categoryId == null) {

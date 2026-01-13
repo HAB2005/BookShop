@@ -51,7 +51,8 @@ public class ProductFacade {
 
     // Query operations with cross-domain orchestration
     public PageResponse<ProductListResponse> getProducts(int page, int size, String sortBy, String sortDir,
-            String name, BigDecimal minPrice, BigDecimal maxPrice, List<Integer> categoryIds, boolean includeAllStatuses) {
+            String name, BigDecimal minPrice, BigDecimal maxPrice, List<Integer> categoryIds,
+            boolean includeAllStatuses) {
 
         // Expand category IDs to include descendants (cross-domain call)
         List<Integer> expandedCategoryIds = null;

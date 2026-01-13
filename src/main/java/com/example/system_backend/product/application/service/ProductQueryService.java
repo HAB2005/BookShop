@@ -28,7 +28,8 @@ public class ProductQueryService {
      * Get paginated list of products with filters (Product entity only)
      */
     public PageResponse<Product> getProductsRaw(int page, int size, String sortBy, String sortDir,
-            String name, BigDecimal minPrice, BigDecimal maxPrice, List<Integer> categoryIds, boolean includeAllStatuses) {
+            String name, BigDecimal minPrice, BigDecimal maxPrice, List<Integer> categoryIds,
+            boolean includeAllStatuses) {
 
         // Validate and set default values
         page = Math.max(0, page);

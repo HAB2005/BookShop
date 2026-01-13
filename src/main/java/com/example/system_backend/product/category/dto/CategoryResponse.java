@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryResponse {
-    
+
     private Integer categoryId;
     private String name;
     private String slug;

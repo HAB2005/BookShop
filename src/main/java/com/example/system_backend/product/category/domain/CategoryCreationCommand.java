@@ -7,8 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Domain command for category creation.
- * Isolates domain layer from application DTOs.
+ * Domain command for category creation. Isolates domain layer from application
+ * DTOs.
  */
 @Data
 @Builder

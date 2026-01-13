@@ -24,9 +24,8 @@ import java.util.stream.Collectors;
 
 /**
  * CategoryFacade orchestrates category operations and coordinates between
- * services.
- * Focuses on orchestration and delegation, with validation delegated to domain
- * service.
+ * services. Focuses on orchestration and delegation, with validation delegated
+ * to domain service.
  */
 @Slf4j
 @Service
@@ -39,7 +38,6 @@ public class CategoryFacade {
     private final CategoryMapper categoryMapper;
 
     // ==================== QUERY OPERATIONS ====================
-
     public PageResponse<CategoryResponse> getCategories(int page, int size, String sortBy, String sortDir,
             String name, Integer parentId, boolean includeInactive) {
 
@@ -88,15 +86,14 @@ public class CategoryFacade {
     }
 
     /**
-     * Get all descendant category IDs for given category IDs.
-     * Used by ProductFacade for category filtering.
+     * Get all descendant category IDs for given category IDs. Used by
+     * ProductFacade for category filtering.
      */
     public List<Integer> getAllDescendantCategoryIds(List<Integer> categoryIds) {
         return categoryQueryService.getAllDescendantCategoryIds(categoryIds);
     }
 
     // ==================== COMMAND OPERATIONS ====================
-
     @Transactional
     public CategoryResponse createCategory(CreateCategoryRequest request) {
         log.info("Creating new category: {}", request.getName());

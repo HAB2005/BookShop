@@ -9,22 +9,22 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * Internal DTO for Category data transfer between layers.
- * Prevents entity leakage from domain to application layer.
+ * Internal DTO for Category data transfer between layers. Prevents entity
+ * leakage from domain to application layer.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryDTO {
-    
+
     private Integer categoryId;
     private String name;
     private String slug;
     private Integer parentId;
     private Category.Status status;
     private LocalDateTime createdAt;
-    
+
     /**
      * Convert from Entity to DTO
      */
@@ -38,7 +38,7 @@ public class CategoryDTO {
                 .createdAt(category.getCreatedAt())
                 .build();
     }
-    
+
     /**
      * Convert to Entity (for cases where needed)
      */

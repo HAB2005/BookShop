@@ -55,7 +55,6 @@ public class Category {
     }
 
     // ===== DOMAIN METHODS =====
-
     /**
      * Domain method to check if category can have a parent
      */
@@ -109,8 +108,8 @@ public class Category {
      */
     public boolean canBeDeleted() {
         // Business rule: Only inactive categories without children can be deleted
-        return this.status == Status.INACTIVE && 
-               (children == null || children.isEmpty());
+        return this.status == Status.INACTIVE
+                && (children == null || children.isEmpty());
     }
 
     /**

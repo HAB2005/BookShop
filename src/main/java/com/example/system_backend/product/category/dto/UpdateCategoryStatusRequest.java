@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateCategoryStatusRequest {
-    
+
     @NotNull(message = "Status is required")
     private Category.Status status;
 }
