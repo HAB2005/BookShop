@@ -1,5 +1,6 @@
 package com.example.system_backend.product.category.application.service;
 
+import com.example.system_backend.common.enums.CategoryStatus;
 import com.example.system_backend.common.exception.ResourceNotFoundException;
 import com.example.system_backend.common.response.PageResponse;
 import com.example.system_backend.product.category.entity.Category;
@@ -34,7 +35,7 @@ public class CategoryQueryService {
             categoryPage = categoryRepository.findAllCategoriesWithFilters(name, parentId, pageable);
         } else {
             categoryPage = categoryRepository.findCategoriesWithFilters(
-                    name, Category.Status.ACTIVE, parentId, pageable);
+                    name, CategoryStatus.ACTIVE, parentId, pageable);
         }
 
         return PageResponse.<Category>builder()
@@ -60,7 +61,7 @@ public class CategoryQueryService {
     }
 
     public List<Category> getCategoryChildren(Integer categoryId) {
-        return categoryRepository.findByParentIdAndStatus(categoryId, Category.Status.ACTIVE);
+        return categoryRepository.findByParentIdAndStatus(categoryId, CategoryStatus.ACTIVE);
     }
 
     public boolean existsBySlug(String slug) {
@@ -99,7 +100,7 @@ public class CategoryQueryService {
 
         while (!currentLevelIds.isEmpty()) {
             List<Category> children = categoryRepository.findByParentIdInAndStatus(
-                    currentLevelIds, Category.Status.ACTIVE);
+                    currentLevelIds, CategoryStatus.ACTIVE);
 
             List<Integer> childIds = children.stream()
                     .map(Category::getCategoryId)
@@ -118,11 +119,11 @@ public class CategoryQueryService {
     }
 
     public List<Category> getActiveChildrenByParentIds(List<Integer> parentIds) {
-        return categoryRepository.findByParentIdInAndStatus(parentIds, Category.Status.ACTIVE);
+        return categoryRepository.findByParentIdInAndStatus(parentIds, CategoryStatus.ACTIVE);
     }
 
     public boolean hasActiveChildren(Integer categoryId) {
-        return !categoryRepository.findByParentIdAndStatus(categoryId, Category.Status.ACTIVE).isEmpty();
+        return !categoryRepository.findByParentIdAndStatus(categoryId, CategoryStatus.ACTIVE).isEmpty();
     }
 
     public List<Category> getCategoriesByIds(List<Integer> categoryIds) {

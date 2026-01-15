@@ -1,5 +1,6 @@
 package com.example.system_backend.product.mapper;
 
+import com.example.system_backend.product.application.service.ProductCategoryService;
 import com.example.system_backend.product.book.dto.BookInfoResponse;
 import com.example.system_backend.product.category.dto.CategoryResponse;
 import com.example.system_backend.product.dto.ProductDetailResponse;
@@ -19,6 +20,7 @@ import java.util.List;
 public class ProductMapper {
 
     private final ProductCategoryMapper productCategoryMapper;
+    private final ProductCategoryService productCategoryService;
 
     /**
      * Map Product entity to ProductDetailResponse DTO
@@ -49,8 +51,9 @@ public class ProductMapper {
      * @return ProductListResponse DTO
      */
     public ProductListResponse mapToListResponse(Product product) {
-        // Get categories for this product using category mapper
-        List<CategoryResponse> categories = productCategoryMapper.getCategoriesForProduct(product.getProductId());
+        // Get categories for this product
+        List<CategoryResponse> categories = productCategoryMapper.mapToCategoryResponses(
+                productCategoryService.getProductCategories(product.getProductId()));
 
         return ProductListResponse.builder()
                 .productId(product.getProductId())

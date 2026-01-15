@@ -1,13 +1,19 @@
 package com.example.system_backend.product.category.domain;
 
+import com.example.system_backend.common.enums.CategoryStatus;
 import com.example.system_backend.common.exception.ValidationException;
-import com.example.system_backend.product.category.application.service.CategoryQueryService;
+import com.example.system_backend.common.exception.ResourceNotFoundException;
 import com.example.system_backend.product.category.entity.Category;
+import com.example.system_backend.product.category.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Domain service for category validation rules. Encapsulates all business
@@ -18,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryValidationService {
 
-    private final CategoryQueryService categoryQueryService;
+    private final CategoryRepository categoryRepository;
 
     /**
      * Validates slug uniqueness for new category creation.
@@ -33,7 +39,7 @@ public class CategoryValidationService {
                     CategoryValidationError.SLUG_NULL_OR_EMPTY.getCode());
         }
 
-        if (categoryQueryService.existsBySlug(slug)) {
+        if (categoryRepository.existsBySlug(slug)) {
             throw new ValidationException(
                     CategoryValidationError.SLUG_EXISTS.getMessage(),
                     CategoryValidationError.SLUG_EXISTS.getCode());
@@ -61,7 +67,7 @@ public class CategoryValidationService {
                     CategoryValidationError.CATEGORY_ID_NULL.getCode());
         }
 
-        if (categoryQueryService.existsBySlugExcludingId(slug, categoryId)) {
+        if (categoryRepository.existsBySlugAndCategoryIdNot(slug, categoryId)) {
             throw new ValidationException(
                     CategoryValidationError.SLUG_EXISTS.getMessage(),
                     CategoryValidationError.SLUG_EXISTS.getCode());
@@ -82,9 +88,10 @@ public class CategoryValidationService {
                     CategoryValidationError.PARENT_ID_NULL.getCode());
         }
 
-        Category parentCategory = categoryQueryService.getCategoryById(parentId);
+        Category parentCategory = categoryRepository.findById(parentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", parentId));
 
-        if (parentCategory.getStatus() != Category.Status.ACTIVE) {
+        if (parentCategory.getStatus() != CategoryStatus.ACTIVE) {
             throw new ValidationException(
                     CategoryValidationError.PARENT_INACTIVE.getMessage(),
                     CategoryValidationError.PARENT_INACTIVE.getCode());
@@ -119,7 +126,7 @@ public class CategoryValidationService {
         }
 
         // Prevent descendant as parent
-        List<Integer> descendants = categoryQueryService.getAllDescendantCategoryIds(List.of(categoryId));
+        List<Integer> descendants = getAllDescendantCategoryIds(List.of(categoryId));
         if (descendants.contains(parentId)) {
             throw new ValidationException(
                     CategoryValidationError.CIRCULAR_REFERENCE.getMessage(),
@@ -141,11 +148,64 @@ public class CategoryValidationService {
                     CategoryValidationError.CATEGORY_ID_NULL.getCode());
         }
 
-        if (categoryQueryService.hasActiveChildren(categoryId)) {
+        if (hasActiveChildren(categoryId)) {
             throw new ValidationException(
                     CategoryValidationError.HAS_ACTIVE_CHILDREN.getMessage(),
                     CategoryValidationError.HAS_ACTIVE_CHILDREN.getCode());
         }
+    }
+
+    /**
+     * Check if category has active children
+     */
+    private boolean hasActiveChildren(Integer categoryId) {
+        return !categoryRepository.findByParentIdAndStatus(categoryId, CategoryStatus.ACTIVE).isEmpty();
+    }
+
+    /**
+     * Get all descendant category IDs for given category IDs (including themselves).
+     * Handles recursive traversal of the category tree.
+     */
+    private List<Integer> getAllDescendantCategoryIds(List<Integer> categoryIds) {
+        if (categoryIds == null || categoryIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        try {
+            // Try using native recursive query first
+            return categoryRepository.findAllDescendantCategoryIds(categoryIds);
+        } catch (Exception e) {
+            // Fallback to Java-based recursive approach
+            return getAllDescendantCategoryIdsRecursive(categoryIds);
+        }
+    }
+
+    /**
+     * Java-based recursive method to get all descendant category IDs.
+     * Fallback for databases that don't support Common Table Expressions (CTE).
+     */
+    private List<Integer> getAllDescendantCategoryIdsRecursive(List<Integer> categoryIds) {
+        Set<Integer> allCategoryIds = new HashSet<>(categoryIds);
+        List<Integer> currentLevelIds = new ArrayList<>(categoryIds);
+
+        while (!currentLevelIds.isEmpty()) {
+            List<Category> children = categoryRepository.findByParentIdInAndStatus(
+                    currentLevelIds, CategoryStatus.ACTIVE);
+
+            List<Integer> childIds = children.stream()
+                    .map(Category::getCategoryId)
+                    .filter(id -> !allCategoryIds.contains(id))
+                    .collect(Collectors.toList());
+
+            if (childIds.isEmpty()) {
+                break;
+            }
+
+            allCategoryIds.addAll(childIds);
+            currentLevelIds = childIds;
+        }
+
+        return new ArrayList<>(allCategoryIds);
     }
 
     /**

@@ -6,7 +6,6 @@ import com.example.system_backend.product.dto.CreateProductRequest;
 import com.example.system_backend.product.dto.UpdateProductRequest;
 import com.example.system_backend.product.dto.UpdateProductStatusRequest;
 import com.example.system_backend.product.entity.Product;
-import com.example.system_backend.product.mapper.ProductCategoryMapper;
 import com.example.system_backend.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,7 @@ import java.util.List;
 public class ProductCommandService {
 
     private final ProductRepository productRepository;
-    private final ProductCategoryMapper productCategoryMapper;
+    private final ProductCategoryService productCategoryService;
     private final ProductValidationService productValidationService;
 
     /**
@@ -83,10 +82,10 @@ public class ProductCommandService {
     }
 
     /**
-     * Assign categories to product (using mapper)
+     * Assign categories to product (using service)
      */
     @Transactional
     public void assignCategoriesToProduct(Integer productId, List<Integer> categoryIds) {
-        productCategoryMapper.assignCategoriesToProduct(productId, categoryIds);
+        productCategoryService.assignCategoriesToProduct(productId, categoryIds);
     }
 }

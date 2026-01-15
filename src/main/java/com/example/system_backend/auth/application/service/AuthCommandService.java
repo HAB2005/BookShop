@@ -4,9 +4,8 @@ import com.example.system_backend.auth.domain.AuthValidationService;
 import com.example.system_backend.auth.dto.GoogleUserInfo;
 import com.example.system_backend.auth.entity.AuthProvider;
 import com.example.system_backend.auth.repository.AuthProviderRepository;
-import com.example.system_backend.user.domain.UserValidationService;
-import com.example.system_backend.user.entity.User;
-import com.example.system_backend.user.repository.UserRepository;
+import com.example.system_backend.common.port.UserCommandPort;
+import com.example.system_backend.common.port.UserPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,51 +14,40 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * AuthCommandService handles ONLY Auth-related write operations. Pure CQRS - no
  * cross-domain orchestration, uses domain validation services.
+ * Uses UserCommandPort to avoid direct dependency on user module.
  */
 @Service
 @RequiredArgsConstructor
 public class AuthCommandService {
 
-    private final UserRepository userRepository;
+    private final UserCommandPort userCommandPort;
     private final AuthProviderRepository authProviderRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthValidationService authValidationService;
-    private final UserValidationService userValidationService;
 
     /**
-     * Create user with email - uses domain validation service
+     * Create user with email - delegates to user module via port
      */
     @Transactional
-    public User createUser(String email, String fullName) {
-        User user = new User();
-        userValidationService.changeUserEmail(user, email); // Use user domain service
-        user.setFullName(fullName);
-        user.setRole(User.Role.customer);
-        user.setStatus(User.Status.active);
-
-        return userRepository.save(user);
+    public UserPort createUser(String email, String fullName) {
+        return userCommandPort.createUserWithEmail(email, fullName);
     }
 
     /**
-     * Create user without email (for phone registration)
+     * Create user without email (for phone registration) - delegates to user module via port
      */
     @Transactional
-    public User createUserWithoutEmail() {
-        User user = new User();
-        user.setRole(User.Role.customer);
-        user.setStatus(User.Status.active);
-
-        return userRepository.save(user);
+    public UserPort createUserWithoutEmail() {
+        return userCommandPort.createUserWithoutEmail();
     }
 
     /**
-     * Update user from Google info - uses domain validation service
+     * Update user from Google info - delegates to user module via port
      */
     @Transactional
-    public User updateUserFromGoogle(User user, GoogleUserInfo googleInfo) {
+    public UserPort updateUserFromGoogle(UserPort user, GoogleUserInfo googleInfo) {
         if (googleInfo.getName() != null && !googleInfo.getName().isEmpty()) {
-            userValidationService.updateUserProfile(user, null, googleInfo.getName()); // Use user domain service
-            return userRepository.save(user);
+            return userCommandPort.updateUserProfile(user, null, googleInfo.getName());
         }
         return user;
     }

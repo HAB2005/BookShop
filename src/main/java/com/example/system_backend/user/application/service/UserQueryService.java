@@ -1,7 +1,9 @@
 package com.example.system_backend.user.application.service;
 
+import com.example.system_backend.common.enums.UserRole;
+import com.example.system_backend.common.enums.UserStatus;
 import com.example.system_backend.common.exception.ResourceNotFoundException;
-import com.example.system_backend.user.entity.User;
+import com.example.system_backend.user.entity.Role;
 import com.example.system_backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,9 +25,9 @@ public class UserQueryService {
     /**
      * Find user by identifier (email or user_id format)
      */
-    public User findUserByIdentifier(String identifier) {
+    public Role findUserByIdentifier(String identifier) {
         // Try email first
-        Optional<User> userOpt = userRepository.findByEmail(identifier);
+        Optional<Role> userOpt = userRepository.findByEmail(identifier);
         if (userOpt.isPresent()) {
             return userOpt.get();
         }
@@ -47,7 +49,7 @@ public class UserQueryService {
     /**
      * Get single user by ID (User entity only)
      */
-    public User getUserById(Integer userId) {
+    public Role getUserById(Integer userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
     }
@@ -70,7 +72,7 @@ public class UserQueryService {
      * Get paginated list of users with filters (User entity only). Pure domain
      * query - no application concerns.
      */
-    public Page<User> getUsersRaw(String email, String username, User.Role role, User.Status status,
+    public Page<Role> getUsersRaw(String email, String username, UserRole role, UserStatus status,
             Pageable pageable) {
         return userRepository.findUsersWithFilters(email, username, role, status, pageable);
     }

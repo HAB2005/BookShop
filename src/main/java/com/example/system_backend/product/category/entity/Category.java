@@ -1,5 +1,6 @@
 package com.example.system_backend.product.category.entity;
 
+import com.example.system_backend.common.enums.CategoryStatus;
 import com.example.system_backend.common.exception.ValidationException;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,7 +36,7 @@ public class Category {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status = Status.ACTIVE;
+    private CategoryStatus status = CategoryStatus.ACTIVE;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -49,10 +50,6 @@ public class Category {
     // Children categories
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<Category> children;
-
-    public enum Status {
-        ACTIVE, INACTIVE
-    }
 
     // ===== DOMAIN METHODS =====
     /**
@@ -75,7 +72,7 @@ public class Category {
     public boolean canBeDeactivated() {
         // Business rule: Category can be deactivated if it has no active children
         if (children != null) {
-            return children.stream().noneMatch(child -> child.getStatus() == Status.ACTIVE);
+            return children.stream().noneMatch(child -> child.getStatus() == CategoryStatus.ACTIVE);
         }
         return true;
     }
@@ -108,7 +105,7 @@ public class Category {
      */
     public boolean canBeDeleted() {
         // Business rule: Only inactive categories without children can be deleted
-        return this.status == Status.INACTIVE
+        return this.status == CategoryStatus.INACTIVE
                 && (children == null || children.isEmpty());
     }
 
@@ -119,21 +116,21 @@ public class Category {
         if (!canBeDeactivated()) {
             throw new ValidationException("Cannot deactivate category with active children", "CATEGORY_HAS_ACTIVE_CHILDREN");
         }
-        this.status = Status.INACTIVE;
+        this.status = CategoryStatus.INACTIVE;
     }
 
     /**
      * Domain method to activate category
      */
     public void activate() {
-        this.status = Status.ACTIVE;
+        this.status = CategoryStatus.ACTIVE;
     }
 
     /**
      * Domain query - check if category is active
      */
     public boolean isActive() {
-        return this.status == Status.ACTIVE;
+        return this.status == CategoryStatus.ACTIVE;
     }
 
     /**

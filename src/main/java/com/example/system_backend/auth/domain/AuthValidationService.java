@@ -1,9 +1,10 @@
 package com.example.system_backend.auth.domain;
 
 import com.example.system_backend.auth.entity.AuthProvider;
+import com.example.system_backend.common.enums.UserStatus;
 import com.example.system_backend.common.exception.AuthenticationException;
 import com.example.system_backend.common.exception.ValidationException;
-import com.example.system_backend.user.entity.User;
+import com.example.system_backend.common.port.UserPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,13 +32,13 @@ public class AuthValidationService {
     }
 
     /**
-     * Validate user status for authentication
+     * Validate user status for authentication - uses UserPort interface
      */
-    public void validateUserStatus(User user) {
+    public void validateUserStatus(UserPort user) {
         if (user == null) {
             throw AuthenticationException.invalidCredentials();
         }
-        if (user.getStatus() != User.Status.active) {
+        if (user.getStatus() != UserStatus.active) {
             throw AuthenticationException.accountDisabled(user.getStatus().name());
         }
     }

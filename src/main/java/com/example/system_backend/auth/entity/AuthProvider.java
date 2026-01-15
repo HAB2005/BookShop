@@ -1,6 +1,5 @@
 package com.example.system_backend.auth.entity;
 
-import com.example.system_backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "user") // Tránh circular reference
+@ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "auth_provider")
 public class AuthProvider {
@@ -38,11 +37,6 @@ public class AuthProvider {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    // Relationship with User
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
 
     public enum Provider {
         LOCAL, GOOGLE, PHONE

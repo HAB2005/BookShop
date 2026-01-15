@@ -127,7 +127,7 @@ public class CategoryFacade {
         log.info("Updating category status: id={}, status={}", categoryId, request.getStatus());
 
         // Validate deactivation if needed
-        if (request.getStatus() == Category.Status.INACTIVE) {
+        if (request.getStatus() == com.example.system_backend.common.enums.CategoryStatus.INACTIVE) {
             categoryValidationService.validateCategoryDeactivation(categoryId);
         }
 

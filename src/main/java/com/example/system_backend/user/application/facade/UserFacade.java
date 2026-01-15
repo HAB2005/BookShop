@@ -8,7 +8,7 @@ import com.example.system_backend.user.dto.CreateUserRequest;
 import com.example.system_backend.user.dto.UpdateProfileRequest;
 import com.example.system_backend.user.dto.UserListResponse;
 import com.example.system_backend.user.dto.UserProfileResponse;
-import com.example.system_backend.user.entity.User;
+import com.example.system_backend.user.entity.Role;
 import com.example.system_backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,17 +36,17 @@ public class UserFacade {
 
     // Query operations with cross-domain orchestration
     public UserProfileResponse getUserProfile(String identifier) {
-        User user = userQueryService.findUserByIdentifier(identifier);
+        Role user = userQueryService.findUserByIdentifier(identifier);
         return userMapper.mapToUserProfileResponse(user);
     }
 
     public UserProfileResponse getUserProfileById(Integer userId) {
-        User user = userQueryService.getUserById(userId);
+        Role user = userQueryService.getUserById(userId);
         return userMapper.mapToUserProfileResponse(user);
     }
 
     public UserProfileResponse getAdminUserProfile(Integer userId) {
-        User user = userQueryService.getUserById(userId);
+        Role user = userQueryService.getUserById(userId);
         return userMapper.mapToAdminProfileResponse(user);
     }
 
@@ -64,18 +64,18 @@ public class UserFacade {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         // Application logic: parse enum values using domain methods
-        User.Role roleEnum = null;
-        User.Status statusEnum = null;
+        com.example.system_backend.common.enums.UserRole roleEnum = null;
+        com.example.system_backend.common.enums.UserStatus statusEnum = null;
 
         if (role != null && !role.isEmpty()) {
-            roleEnum = User.Role.parseRole(role);
+            roleEnum = com.example.system_backend.common.enums.UserRole.parseRole(role);
         }
         if (status != null && !status.isEmpty()) {
-            statusEnum = User.Status.parseStatus(status);
+            statusEnum = com.example.system_backend.common.enums.UserStatus.parseStatus(status);
         }
 
         // Get users from UserQueryService (pure domain call)
-        Page<User> userPage = userQueryService.getUsersRaw(email, username, roleEnum, statusEnum, pageable);
+        Page<Role> userPage = userQueryService.getUsersRaw(email, username, roleEnum, statusEnum, pageable);
 
         // Application logic: build PageResponse
         return PageResponse.<UserListResponse>builder()
@@ -96,7 +96,7 @@ public class UserFacade {
     @Transactional
     public UserProfileResponse createUser(CreateUserRequest request) {
         // Create user
-        User savedUser = userCommandService.createUser(request);
+        Role savedUser = userCommandService.createUser(request);
 
         // Create AuthProvider (cross-domain operation)
         userCommandService.createAuthProvider(savedUser.getUserId(), request.getEmail(), request.getPassword());
@@ -106,14 +106,14 @@ public class UserFacade {
 
     @Transactional
     public UserProfileResponse updateProfile(String identifier, UpdateProfileRequest request) {
-        User user = userQueryService.findUserByIdentifier(identifier);
-        User updatedUser = userCommandService.updateUserProfile(user.getUserId(), request);
+        Role user = userQueryService.findUserByIdentifier(identifier);
+        Role updatedUser = userCommandService.updateUserProfile(user.getUserId(), request);
         return userMapper.mapToUserProfileResponse(updatedUser);
     }
 
     @Transactional
     public UserProfileResponse adminUpdateUserProfile(Integer userId, UpdateProfileRequest request) {
-        User updatedUser = userCommandService.updateUserProfile(userId, request);
+        Role updatedUser = userCommandService.updateUserProfile(userId, request);
         return userMapper.mapToAdminProfileResponse(updatedUser);
     }
 
@@ -124,7 +124,7 @@ public class UserFacade {
 
     @Transactional
     public void changePassword(String identifier, ChangePasswordRequest request) {
-        User user = userQueryService.findUserByIdentifier(identifier);
+        Role user = userQueryService.findUserByIdentifier(identifier);
         userCommandService.changePassword(user.getUserId(), request);
     }
 

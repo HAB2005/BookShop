@@ -3,8 +3,8 @@ package com.example.system_backend.auth.application.service;
 import com.example.system_backend.auth.entity.AuthProvider;
 import com.example.system_backend.auth.repository.AuthProviderRepository;
 import com.example.system_backend.common.exception.AuthenticationException;
-import com.example.system_backend.user.entity.User;
-import com.example.system_backend.user.repository.UserRepository;
+import com.example.system_backend.common.port.UserPort;
+import com.example.system_backend.common.port.UserQueryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +13,13 @@ import java.util.Optional;
 /**
  * AuthQueryService handles ONLY Auth-related read operations. Pure CQRS - no
  * validation logic, no cross-domain orchestration.
+ * Uses UserQueryPort to avoid direct dependency on user module.
  */
 @Service
 @RequiredArgsConstructor
 public class AuthQueryService {
 
-    private final UserRepository userRepository;
+    private final UserQueryPort userQueryPort;
     private final AuthProviderRepository authProviderRepository;
 
     /**
@@ -36,25 +37,25 @@ public class AuthQueryService {
     }
 
     /**
-     * Get user by ID - pure query
+     * Get user by ID - pure query via port
      */
-    public User getUserById(Integer userId) {
-        return userRepository.findById(userId)
+    public UserPort getUserById(Integer userId) {
+        return userQueryPort.findById(userId)
                 .orElseThrow(AuthenticationException::invalidCredentials);
     }
 
     /**
-     * Find user by email - pure query
+     * Find user by email - pure query via port
      */
-    public Optional<User> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<UserPort> findUserByEmail(String email) {
+        return userQueryPort.findByEmail(email);
     }
 
     /**
-     * Check if email exists - pure query
+     * Check if email exists - pure query via port
      */
     public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+        return userQueryPort.existsByEmail(email);
     }
 
     /**

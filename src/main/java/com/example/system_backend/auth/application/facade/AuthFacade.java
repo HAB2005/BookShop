@@ -17,9 +17,9 @@ import com.example.system_backend.auth.mapper.AuthMapper;
 import com.example.system_backend.common.exception.AuthenticationException;
 import com.example.system_backend.common.exception.DuplicateResourceException;
 import com.example.system_backend.common.exception.ValidationException;
+import com.example.system_backend.common.port.UserPort;
 import com.example.system_backend.common.security.JwtService;
 import com.example.system_backend.otp.service.OtpService;
-import com.example.system_backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +32,7 @@ import java.util.Optional;
  * domains. Pure orchestration - all validation logic moved to
  * AuthValidationService. Handles complex authentication workflows and
  * coordinates multiple services.
+ * Uses UserPort to avoid direct dependency on User entity.
  */
 @Service
 @RequiredArgsConstructor
@@ -63,7 +64,7 @@ public class AuthFacade {
         }
 
         // Orchestrate domain operations
-        User savedUser = authCommandService.createUser(request.getEmail(), request.getFullName());
+        UserPort savedUser = authCommandService.createUser(request.getEmail(), request.getFullName());
         authCommandService.createLocalAuthProvider(savedUser.getUserId(), request.getEmail(), request.getPassword());
 
         // Application logic: generate token and build response
@@ -92,7 +93,7 @@ public class AuthFacade {
             throw AuthenticationException.invalidCredentials();
         }
 
-        User user = authQueryService.getUserById(authProvider.getUserId());
+        UserPort user = authQueryService.getUserById(authProvider.getUserId());
         authValidationService.validateUserStatus(user);
 
         return buildAuthResponse(user);
@@ -108,7 +109,7 @@ public class AuthFacade {
         authValidationService.validatePasswordStrength(request.getPassword());
         authValidationService.validatePasswordConfirmation(request.getPassword(), request.getConfirmPassword());
 
-        User user = authQueryService.findUserByEmail(email)
+        UserPort user = authQueryService.findUserByEmail(email)
                 .orElseThrow(() -> new ValidationException("User not found", "USER_NOT_FOUND"));
 
         if (authQueryService.hasLocalAuthProvider(user.getUserId())) {
@@ -144,9 +145,9 @@ public class AuthFacade {
      */
     @Transactional
     private AuthResponse registerWithGoogle(GoogleUserInfo googleInfo) {
-        User user;
+        UserPort user;
 
-        Optional<User> existingUserOpt = authQueryService.findUserByEmail(googleInfo.getEmail());
+        Optional<UserPort> existingUserOpt = authQueryService.findUserByEmail(googleInfo.getEmail());
 
         if (existingUserOpt.isPresent()) {
             user = existingUserOpt.get();
@@ -194,7 +195,7 @@ public class AuthFacade {
      */
     @Transactional
     private AuthResponse registerWithPhone(String phone) {
-        User savedUser = authCommandService.createUserWithoutEmail();
+        UserPort savedUser = authCommandService.createUserWithoutEmail();
         authCommandService.createPhoneAuthProvider(savedUser.getUserId(), phone);
 
         return buildAuthResponse(savedUser);
@@ -205,7 +206,7 @@ public class AuthFacade {
      * Handle existing email registration scenario
      */
     private AuthResponse handleExistingEmailRegistration(String email) {
-        User existingUser = authQueryService.findUserByEmail(email).get();
+        UserPort existingUser = authQueryService.findUserByEmail(email).get();
         Optional<AuthProvider> localAuth = authQueryService.findAuthProviderByUserAndProvider(
                 existingUser.getUserId(), AuthProvider.Provider.LOCAL);
 
@@ -234,7 +235,7 @@ public class AuthFacade {
      * Handle existing Google user authentication
      */
     private AuthResponse handleExistingGoogleUser(AuthProvider authProvider) {
-        User user = authQueryService.getUserById(authProvider.getUserId());
+        UserPort user = authQueryService.getUserById(authProvider.getUserId());
         authValidationService.validateUserStatus(user);
 
         return buildAuthResponse(user);
@@ -244,7 +245,7 @@ public class AuthFacade {
      * Handle existing phone user authentication
      */
     private AuthResponse handleExistingPhoneUser(AuthProvider authProvider, String phone) {
-        User user = authQueryService.getUserById(authProvider.getUserId());
+        UserPort user = authQueryService.getUserById(authProvider.getUserId());
         authValidationService.validateUserStatus(user);
 
         return buildAuthResponse(user);
@@ -253,7 +254,7 @@ public class AuthFacade {
     /**
      * Build AuthResponse with JWT token - application logic
      */
-    private AuthResponse buildAuthResponse(User user) {
+    private AuthResponse buildAuthResponse(UserPort user) {
         String identifier = user.getEmail();
         if (identifier == null) {
             identifier = "user_" + user.getUserId();

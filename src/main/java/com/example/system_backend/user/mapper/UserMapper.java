@@ -2,7 +2,7 @@ package com.example.system_backend.user.mapper;
 
 import com.example.system_backend.user.dto.UserListResponse;
 import com.example.system_backend.user.dto.UserProfileResponse;
-import com.example.system_backend.user.entity.User;
+import com.example.system_backend.user.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ public class UserMapper {
      * @param user the User entity
      * @return UserProfileResponse DTO
      */
-    public UserProfileResponse mapToUserProfileResponse(User user) {
+    public UserProfileResponse mapToUserProfileResponse(Role user) {
         // Determine display name (email or user_id)
         String displayName = user.getEmail();
         if (displayName == null) {
@@ -44,7 +44,7 @@ public class UserMapper {
      * @param user the User entity
      * @return UserProfileResponse DTO with status visible
      */
-    public UserProfileResponse mapToAdminProfileResponse(User user) {
+    public UserProfileResponse mapToAdminProfileResponse(Role user) {
         // Determine display name (email or user_id)
         String displayName = user.getEmail();
         if (displayName == null) {
@@ -68,7 +68,7 @@ public class UserMapper {
      * @param user the User entity
      * @return UserListResponse DTO
      */
-    public UserListResponse mapToListResponse(User user) {
+    public UserListResponse mapToListResponse(Role user) {
         // Determine display name (email or user_id)
         String displayName = user.getEmail();
         if (displayName == null) {

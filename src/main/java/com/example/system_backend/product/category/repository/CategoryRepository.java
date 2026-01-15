@@ -1,5 +1,6 @@
 package com.example.system_backend.product.category.repository;
 
+import com.example.system_backend.common.enums.CategoryStatus;
 import com.example.system_backend.product.category.entity.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,18 +17,18 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     Optional<Category> findBySlug(String slug);
 
-    List<Category> findByParentIdIsNullAndStatus(Category.Status status);
+    List<Category> findByParentIdIsNullAndStatus(CategoryStatus status);
 
-    List<Category> findByParentIdAndStatus(Integer parentId, Category.Status status);
+    List<Category> findByParentIdAndStatus(Integer parentId, CategoryStatus status);
 
-    Page<Category> findByStatus(Category.Status status, Pageable pageable);
+    Page<Category> findByStatus(CategoryStatus status, Pageable pageable);
 
     @Query("SELECT c FROM Category c WHERE "
             + "(:name IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND "
             + "(:status IS NULL OR c.status = :status) AND "
             + "(:parentId IS NULL OR c.parentId = :parentId)")
     Page<Category> findCategoriesWithFilters(@Param("name") String name,
-            @Param("status") Category.Status status,
+            @Param("status") CategoryStatus status,
             @Param("parentId") Integer parentId,
             Pageable pageable);
 
@@ -59,5 +60,5 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     // Alternative method using JPQL for databases that don't support CTE
     @Query("SELECT c FROM Category c WHERE c.parentId IN :parentIds AND c.status = 'ACTIVE'")
-    List<Category> findByParentIdInAndStatus(@Param("parentIds") List<Integer> parentIds, Category.Status status);
+    List<Category> findByParentIdInAndStatus(@Param("parentIds") List<Integer> parentIds, CategoryStatus status);
 }

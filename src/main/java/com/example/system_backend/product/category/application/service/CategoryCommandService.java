@@ -1,5 +1,6 @@
 package com.example.system_backend.product.category.application.service;
 
+import com.example.system_backend.common.enums.CategoryStatus;
 import com.example.system_backend.common.exception.ResourceNotFoundException;
 import com.example.system_backend.product.category.dto.CreateCategoryRequest;
 import com.example.system_backend.product.category.dto.UpdateCategoryRequest;
@@ -24,7 +25,7 @@ public class CategoryCommandService {
         category.setName(request.getName());
         category.setSlug(request.getSlug());
         category.setParentId(request.getParentId());
-        category.setStatus(Category.Status.ACTIVE);
+        category.setStatus(CategoryStatus.ACTIVE);
 
         return categoryRepository.save(category);
     }

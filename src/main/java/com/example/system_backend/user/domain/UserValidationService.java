@@ -1,7 +1,9 @@
 package com.example.system_backend.user.domain;
 
+import com.example.system_backend.common.enums.UserRole;
+import com.example.system_backend.common.enums.UserStatus;
 import com.example.system_backend.common.exception.ValidationException;
-import com.example.system_backend.user.entity.User;
+import com.example.system_backend.user.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +30,7 @@ public class UserValidationService {
     /**
      * Change user email with validation
      */
-    public void changeUserEmail(User user, String newEmail) {
+    public void changeUserEmail(Role user, String newEmail) {
         validateEmailFormat(newEmail);
         user.setEmail(newEmail.trim().toLowerCase());
     }
@@ -36,7 +38,7 @@ public class UserValidationService {
     /**
      * Update user profile with validation
      */
-    public void updateUserProfile(User user, String email, String fullName) {
+    public void updateUserProfile(Role user, String email, String fullName) {
         if (email != null) {
             changeUserEmail(user, email);
         }
@@ -48,7 +50,7 @@ public class UserValidationService {
     /**
      * Change user status with validation
      */
-    public void changeUserStatus(User user, User.Status newStatus) {
+    public void changeUserStatus(Role user, UserStatus newStatus) {
         if (newStatus == null) {
             throw new ValidationException("Status cannot be null", "INVALID_STATUS");
         }
@@ -58,15 +60,15 @@ public class UserValidationService {
     /**
      * Change user status from string with validation
      */
-    public void changeUserStatus(User user, String statusString) {
-        User.Status newStatus = User.Status.parseStatus(statusString);
+    public void changeUserStatus(Role user, String statusString) {
+        UserStatus newStatus = UserStatus.parseStatus(statusString);
         changeUserStatus(user, newStatus);
     }
 
     /**
      * Change user role with validation
      */
-    public void changeUserRole(User user, User.Role newRole) {
+    public void changeUserRole(Role user, UserRole newRole) {
         if (newRole == null) {
             throw new ValidationException("Role cannot be null", "ROLE_NULL");
         }
@@ -76,49 +78,49 @@ public class UserValidationService {
     /**
      * Promote user to admin
      */
-    public void promoteUserToAdmin(User user) {
-        user.setRole(User.Role.admin);
+    public void promoteUserToAdmin(Role user) {
+        user.setRole(UserRole.admin);
     }
 
     /**
      * Demote admin to customer
      */
-    public void demoteUserToCustomer(User user) {
-        user.setRole(User.Role.customer);
+    public void demoteUserToCustomer(Role user) {
+        user.setRole(UserRole.customer);
     }
 
     /**
      * Activate user
      */
-    public void activateUser(User user) {
-        user.setStatus(User.Status.active);
+    public void activateUser(Role user) {
+        user.setStatus(UserStatus.active);
     }
 
     /**
      * Deactivate user
      */
-    public void deactivateUser(User user) {
-        user.setStatus(User.Status.inactive);
+    public void deactivateUser(Role user) {
+        user.setStatus(UserStatus.inactive);
     }
 
     /**
      * Ban user
      */
-    public void banUser(User user) {
-        user.setStatus(User.Status.banned);
+    public void banUser(Role user) {
+        user.setStatus(UserStatus.banned);
     }
 
     /**
      * Check if user is active
      */
-    public boolean isUserActive(User user) {
-        return user.getStatus() == User.Status.active;
+    public boolean isUserActive(Role user) {
+        return user.getStatus() == UserStatus.active;
     }
 
     /**
      * Check if user is admin
      */
-    public boolean isUserAdmin(User user) {
-        return user.getRole() == User.Role.admin;
+    public boolean isUserAdmin(Role user) {
+        return user.getRole() == UserRole.admin;
     }
 }
