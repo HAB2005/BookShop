@@ -1,6 +1,7 @@
 package com.example.system_backend.auth.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ import com.example.system_backend.common.security.TokenBlacklistService;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -54,6 +56,7 @@ public class AuthController {
 
     @PostMapping("/google/login")
     public AuthResponse loginWithGoogle(@Valid @RequestBody GoogleLoginRequest request) {
+        log.debug("Received Google login request");
         return authFacade.loginWithGoogle(request);
     }
 

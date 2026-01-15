@@ -67,6 +67,18 @@ public class GoogleAuthService {
 
     private GoogleUserInfo verifyIdToken(String idToken) {
         try {
+            // Validate token format
+            if (idToken == null || idToken.trim().isEmpty()) {
+                throw new GoogleAuthException("ID token is null or empty");
+            }
+
+            // Check if token looks like a JWT (has 3 parts separated by dots)
+            String[] parts = idToken.split("\\.");
+            if (parts.length != 3) {
+                log.debug("Token doesn't have 3 parts (header.payload.signature), might be access token");
+                throw new GoogleAuthException("Invalid ID token format - expected JWT with 3 parts, got " + parts.length);
+            }
+
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     new NetHttpTransport(),
                     GsonFactory.getDefaultInstance())
@@ -90,6 +102,10 @@ public class GoogleAuthService {
             }
         } catch (GoogleAuthException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            // This happens when token format is invalid (e.g., access token instead of ID token)
+            log.debug("IllegalArgumentException during ID token verification: {}", e.getMessage());
+            throw new GoogleAuthException("Invalid ID token format: " + e.getMessage());
         } catch (Exception e) {
             log.error("Failed to verify Google ID token", e);
             throw new GoogleAuthException("Failed to verify Google ID token: " + e.getMessage());
