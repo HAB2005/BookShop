@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,9 +45,19 @@ class NamingConventionTest {
     void repositoriesShouldHaveRepositorySuffix() {
         ArchRule rule = classes()
                 .that().resideInAPackage("..repository..")
-                .and().areAnnotatedWith(Repository.class)
-                .or().areInterfaces()
+                .and().resideOutsideOfPackage("..port..")
                 .should().haveSimpleNameEndingWith("Repository");
+
+        rule.check(importedClasses);
+    }
+
+    @Test
+    @DisplayName("Port phải có tên kết thúc bằng 'Port'")
+    void portsShouldHavePortSuffix() {
+        ArchRule rule = classes()
+                .that().resideInAPackage("..port..")
+                .and().areInterfaces()
+                .should().haveSimpleNameEndingWith("Port");
 
         rule.check(importedClasses);
     }

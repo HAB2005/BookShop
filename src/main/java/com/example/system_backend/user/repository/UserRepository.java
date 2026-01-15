@@ -26,13 +26,13 @@ public interface UserRepository extends JpaRepository<Role, Integer> {
 
     Page<Role> findByRoleAndStatus(UserRole role, UserStatus status, Pageable pageable);
 
-    @Query("SELECT u FROM User u WHERE "
+    @Query("SELECT u FROM Role u WHERE "
             + "(:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND "
-            + "(:username IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :username, '%'))) AND "
+            + "(:fullName IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :fullName, '%'))) AND "
             + "(:role IS NULL OR u.role = :role) AND "
             + "(:status IS NULL OR u.status = :status)")
     Page<Role> findUsersWithFilters(@Param("email") String email,
-            @Param("username") String username,
+            @Param("fullName") String fullName,
             @Param("role") UserRole role,
             @Param("status") UserStatus status,
             Pageable pageable);

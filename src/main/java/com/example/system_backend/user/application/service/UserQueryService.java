@@ -72,8 +72,8 @@ public class UserQueryService {
      * Get paginated list of users with filters (User entity only). Pure domain
      * query - no application concerns.
      */
-    public Page<Role> getUsersRaw(String email, String username, UserRole role, UserStatus status,
+    public Page<Role> getUsersRaw(String email, String fullName, UserRole role, UserStatus status,
             Pageable pageable) {
-        return userRepository.findUsersWithFilters(email, username, role, status, pageable);
+        return userRepository.findUsersWithFilters(email, fullName, role, status, pageable);
     }
 }
