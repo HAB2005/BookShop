@@ -50,10 +50,10 @@ public class CategoryValidationService {
      * Validates slug uniqueness for category update (excluding current
      * category).
      *
-     * @param slug the slug to validate (must not be null or empty)
+     * @param slug       the slug to validate (must not be null or empty)
      * @param categoryId the current category ID to exclude (must not be null)
      * @throws ValidationException if parameters are invalid or slug already
-     * exists
+     *                             exists
      */
     public void validateSlugUniquenessForUpdate(String slug, Integer categoryId) {
         if (slug == null || slug.trim().isEmpty()) {
@@ -79,7 +79,7 @@ public class CategoryValidationService {
      *
      * @param parentId the parent category ID to validate (must not be null)
      * @throws ValidationException if parentId is null or parent category is
-     * invalid
+     *                             invalid
      */
     public void validateParentCategory(Integer parentId) {
         if (parentId == null) {
@@ -102,9 +102,9 @@ public class CategoryValidationService {
      * Validates circular reference prevention.
      *
      * @param categoryId the category ID being updated (must not be null)
-     * @param parentId the new parent ID (must not be null)
+     * @param parentId   the new parent ID (must not be null)
      * @throws ValidationException if any parameter is null or circular
-     * reference is detected
+     *                             reference is detected
      */
     public void validateCircularReference(Integer categoryId, Integer parentId) {
         if (categoryId == null) {
@@ -139,7 +139,7 @@ public class CategoryValidationService {
      *
      * @param categoryId the category ID to validate (must not be null)
      * @throws ValidationException if categoryId is null or category has active
-     * children
+     *                             children
      */
     public void validateCategoryDeactivation(Integer categoryId) {
         if (categoryId == null) {
@@ -163,7 +163,8 @@ public class CategoryValidationService {
     }
 
     /**
-     * Get all descendant category IDs for given category IDs (including themselves).
+     * Get all descendant category IDs for given category IDs (including
+     * themselves).
      * Handles recursive traversal of the category tree.
      */
     private List<Integer> getAllDescendantCategoryIds(List<Integer> categoryIds) {

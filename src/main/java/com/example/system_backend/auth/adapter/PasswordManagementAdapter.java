@@ -14,7 +14,8 @@ import java.util.Optional;
 
 /**
  * Adapter that implements PasswordManagementPort using auth module services.
- * This allows other modules to use password operations without direct dependency on auth module.
+ * This allows other modules to use password operations without direct
+ * dependency on auth module.
  */
 @Component
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class PasswordManagementAdapter implements PasswordManagementPort {
         authProvider.setProvider(AuthProvider.Provider.LOCAL);
         authProvider.setProviderUserId(email);
         authProvider.setPasswordHash(passwordEncoder.encode(password));
-        
+
         authProviderRepository.save(authProvider);
     }
 

@@ -1,5 +1,7 @@
 package com.example.system_backend.user.application.service;
 
+import com.example.system_backend.common.enums.UserRole;
+import com.example.system_backend.common.enums.UserStatus;
 import com.example.system_backend.common.exception.DuplicateResourceException;
 import com.example.system_backend.common.exception.ResourceNotFoundException;
 import com.example.system_backend.common.port.PasswordManagementPort;
@@ -37,10 +39,8 @@ public class UserCommandService {
         }
 
         // Use domain service for enum validation
-        com.example.system_backend.common.enums.UserRole roleEnum = 
-            com.example.system_backend.common.enums.UserRole.parseRole(request.getRole());
-        com.example.system_backend.common.enums.UserStatus statusEnum = 
-            com.example.system_backend.common.enums.UserStatus.parseStatus(request.getStatus());
+        UserRole roleEnum = UserRole.parseRole(request.getRole());
+        UserStatus statusEnum = UserStatus.parseStatus(request.getStatus());
 
         // Tạo user mới
         Role user = new Role();

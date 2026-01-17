@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * ProductCategoryMapper handles mapping operations between ProductCategory entities and DTOs.
+ * ProductCategoryMapper handles mapping operations between ProductCategory
+ * entities and DTOs.
  * Pure mapper - no business logic or repository access.
  */
 @Component
@@ -36,4 +37,3 @@ public class ProductCategoryMapper {
                 .collect(Collectors.toList());
     }
 }
-

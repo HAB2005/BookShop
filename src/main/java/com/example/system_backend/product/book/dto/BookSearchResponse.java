@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookSearchResponse {
-    
+
     // Essential product information for list view
     private Integer productId;
     private String name;
     private BigDecimal price;
-    
+
     // Essential book information for list view
     private String isbn;
     private Integer publishYear;

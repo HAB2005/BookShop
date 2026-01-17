@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookInfoResponse {
-    
+
     private Integer bookId;
     private String isbn;
     private String description;

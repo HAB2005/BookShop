@@ -21,7 +21,7 @@ public class ProductCategoryService {
     /**
      * Assign categories to a product
      *
-     * @param productId the product ID
+     * @param productId   the product ID
      * @param categoryIds list of category IDs to assign
      */
     @Transactional
@@ -43,7 +43,7 @@ public class ProductCategoryService {
     /**
      * Add a single category to a product (without removing existing ones)
      *
-     * @param productId the product ID
+     * @param productId  the product ID
      * @param categoryId the category ID to add
      */
     @Transactional

@@ -76,7 +76,8 @@ public class GoogleAuthService {
             String[] parts = idToken.split("\\.");
             if (parts.length != 3) {
                 log.debug("Token doesn't have 3 parts (header.payload.signature), might be access token");
-                throw new GoogleAuthException("Invalid ID token format - expected JWT with 3 parts, got " + parts.length);
+                throw new GoogleAuthException(
+                        "Invalid ID token format - expected JWT with 3 parts, got " + parts.length);
             }
 
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
@@ -103,7 +104,8 @@ public class GoogleAuthService {
         } catch (GoogleAuthException e) {
             throw e;
         } catch (IllegalArgumentException e) {
-            // This happens when token format is invalid (e.g., access token instead of ID token)
+            // This happens when token format is invalid (e.g., access token instead of ID
+            // token)
             log.debug("IllegalArgumentException during ID token verification: {}", e.getMessage());
             throw new GoogleAuthException("Invalid ID token format: " + e.getMessage());
         } catch (Exception e) {

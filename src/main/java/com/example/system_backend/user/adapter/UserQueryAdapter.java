@@ -10,7 +10,8 @@ import java.util.Optional;
 
 /**
  * Adapter that implements UserQueryPort for auth module to use
- * This allows auth module to query users without depending on user module directly
+ * This allows auth module to query users without depending on user module
+ * directly
  */
 @Component
 @RequiredArgsConstructor

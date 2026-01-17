@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 
 /**
  * User entity representing a user in the system.
- * Implements UserPort interface to allow other modules to access user data without direct dependency.
+ * Implements UserPort interface to allow other modules to access user data
+ * without direct dependency.
  */
 @Entity
 @Getter

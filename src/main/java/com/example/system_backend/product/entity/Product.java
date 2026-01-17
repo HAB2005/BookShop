@@ -15,7 +15,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"productCategories", "book", "images"}) // Tránh LazyInitializationException
+@ToString(exclude = { "productCategories", "book", "images" }) // Tránh LazyInitializationException
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "product")
 public class Product {

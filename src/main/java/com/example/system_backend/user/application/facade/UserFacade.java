@@ -1,5 +1,7 @@
 package com.example.system_backend.user.application.facade;
 
+import com.example.system_backend.common.enums.UserRole;
+import com.example.system_backend.common.enums.UserStatus;
 import com.example.system_backend.common.response.PageResponse;
 import com.example.system_backend.user.application.service.UserCommandService;
 import com.example.system_backend.user.application.service.UserQueryService;
@@ -64,14 +66,14 @@ public class UserFacade {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         // Application logic: parse enum values using domain methods
-        com.example.system_backend.common.enums.UserRole roleEnum = null;
-        com.example.system_backend.common.enums.UserStatus statusEnum = null;
+        UserRole roleEnum = null;
+        UserStatus statusEnum = null;
 
         if (role != null && !role.isEmpty()) {
-            roleEnum = com.example.system_backend.common.enums.UserRole.parseRole(role);
+            roleEnum = UserRole.parseRole(role);
         }
         if (status != null && !status.isEmpty()) {
-            statusEnum = com.example.system_backend.common.enums.UserStatus.parseStatus(status);
+            statusEnum = UserStatus.parseStatus(status);
         }
 
         // Get users from UserQueryService (pure domain call)

@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Adapter that implements UserCommandPort for auth module to use
- * This allows auth module to create users without depending on user module directly
+ * This allows auth module to create users without depending on user module
+ * directly
  */
 @Component
 @RequiredArgsConstructor

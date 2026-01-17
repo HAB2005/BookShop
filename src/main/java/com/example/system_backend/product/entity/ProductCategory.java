@@ -9,7 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"product", "category"}) // Tránh LazyInitializationException
+@ToString(exclude = { "product", "category" }) // Tránh LazyInitializationException
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "product_category")
 @IdClass(ProductCategoryId.class)

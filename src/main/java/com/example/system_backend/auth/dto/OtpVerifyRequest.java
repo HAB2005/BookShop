@@ -7,11 +7,11 @@ import lombok.Data;
 
 @Data
 public class OtpVerifyRequest {
-    
+
     @NotBlank(message = "Phone number is required")
     @Pattern(regexp = "^[0-9]{10,11}$", message = "Invalid phone number format")
     private String phone;
-    
+
     @NotBlank(message = "OTP code is required")
     @Size(min = 6, max = 6, message = "OTP code must be 6 digits")
     @Pattern(regexp = "^[0-9]{6}$", message = "OTP code must contain only digits")

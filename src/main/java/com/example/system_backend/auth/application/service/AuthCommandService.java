@@ -34,7 +34,8 @@ public class AuthCommandService {
     }
 
     /**
-     * Create user without email (for phone registration) - delegates to user module via port
+     * Create user without email (for phone registration) - delegates to user module
+     * via port
      */
     @Transactional
     public UserPort createUserWithoutEmail() {

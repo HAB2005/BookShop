@@ -26,7 +26,7 @@ public class ProductMapper {
      * Map Product entity to ProductDetailResponse DTO
      *
      * @param product the Product entity
-     * @param book the BookInfoResponse (optional)
+     * @param book    the BookInfoResponse (optional)
      * @return ProductDetailResponse DTO
      */
     public ProductDetailResponse mapToDetailResponse(Product product, BookInfoResponse book) {
