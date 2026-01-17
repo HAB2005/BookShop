@@ -4,8 +4,6 @@ import com.example.system_backend.product.image.application.facade.ProductImageF
 import com.example.system_backend.product.image.dto.ProductImageResponse;
 import com.example.system_backend.product.image.dto.ReorderImagesRequest;
 import com.example.system_backend.product.image.dto.UpdateImageRequest;
-import com.example.system_backend.product.image.entity.ProductImage;
-import com.example.system_backend.product.image.mapper.ProductImageMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +20,6 @@ import java.util.Map;
 public class ProductImageController {
 
     private final ProductImageFacade productImageFacade;
-    private final ProductImageMapper productImageMapper;
 
     /**
      * Upload image for a product
@@ -34,9 +31,7 @@ public class ProductImageController {
             @RequestParam(defaultValue = "false") Boolean isPrimary,
             @RequestParam(required = false) Integer sortOrder) {
 
-        ProductImage savedImage = productImageFacade.uploadImage(file, productId, isPrimary, sortOrder);
-        ProductImageResponse response = productImageMapper.mapToResponse(savedImage);
-
+        ProductImageResponse response = productImageFacade.uploadImage(file, productId, isPrimary, sortOrder);
         return ResponseEntity.ok(response);
     }
 
@@ -45,9 +40,7 @@ public class ProductImageController {
      */
     @GetMapping
     public ResponseEntity<List<ProductImageResponse>> getProductImages(@RequestParam Integer productId) {
-        List<ProductImage> images = productImageFacade.getProductImages(productId);
-        List<ProductImageResponse> response = productImageMapper.mapToResponseList(images);
-
+        List<ProductImageResponse> response = productImageFacade.getProductImages(productId);
         return ResponseEntity.ok(response);
     }
 
@@ -57,7 +50,7 @@ public class ProductImageController {
     @GetMapping("/primary")
     public ResponseEntity<ProductImageResponse> getPrimaryImage(@RequestParam Integer productId) {
         return productImageFacade.getPrimaryImage(productId)
-                .map(image -> ResponseEntity.ok(productImageMapper.mapToResponse(image)))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -66,9 +59,7 @@ public class ProductImageController {
      */
     @GetMapping("/{imageId}")
     public ResponseEntity<ProductImageResponse> getImageById(@PathVariable Integer imageId) {
-        ProductImage image = productImageFacade.getImageById(imageId);
-        ProductImageResponse response = productImageMapper.mapToResponse(image);
-
+        ProductImageResponse response = productImageFacade.getImageById(imageId);
         return ResponseEntity.ok(response);
     }
 
@@ -80,9 +71,7 @@ public class ProductImageController {
             @PathVariable Integer imageId,
             @Valid @RequestBody UpdateImageRequest request) {
 
-        ProductImage updatedImage = productImageFacade.updateImage(imageId, request);
-        ProductImageResponse response = productImageMapper.mapToResponse(updatedImage);
-
+        ProductImageResponse response = productImageFacade.updateImage(imageId, request);
         return ResponseEntity.ok(response);
     }
 
@@ -91,9 +80,7 @@ public class ProductImageController {
      */
     @PatchMapping("/{imageId}/primary")
     public ResponseEntity<ProductImageResponse> setPrimaryImage(@PathVariable Integer imageId) {
-        ProductImage updatedImage = productImageFacade.setPrimaryImage(imageId);
-        ProductImageResponse response = productImageMapper.mapToResponse(updatedImage);
-
+        ProductImageResponse response = productImageFacade.setPrimaryImage(imageId);
         return ResponseEntity.ok(response);
     }
 

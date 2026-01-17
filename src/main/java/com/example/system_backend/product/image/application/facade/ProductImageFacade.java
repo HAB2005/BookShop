@@ -6,9 +6,11 @@ import com.example.system_backend.product.application.service.ProductQueryServic
 import com.example.system_backend.product.entity.Product;
 import com.example.system_backend.product.image.application.service.ProductImageCommandService;
 import com.example.system_backend.product.image.application.service.ProductImageQueryService;
+import com.example.system_backend.product.image.dto.ProductImageResponse;
 import com.example.system_backend.product.image.dto.ReorderImagesRequest;
 import com.example.system_backend.product.image.dto.UpdateImageRequest;
 import com.example.system_backend.product.image.entity.ProductImage;
+import com.example.system_backend.product.image.mapper.ProductImageMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class ProductImageFacade {
     private final ProductImageCommandService productImageCommandService;
     private final ProductImageQueryService productImageQueryService;
     private final ProductQueryService productQueryService;
+    private final ProductImageMapper productImageMapper;
 
     // Business rules constants
     private static final int MAX_IMAGES_PER_PRODUCT = 10;
@@ -40,7 +43,7 @@ public class ProductImageFacade {
      * Upload and save product image with cross-domain validation
      */
     @Transactional
-    public ProductImage uploadImage(MultipartFile file, Integer productId, Boolean isPrimary, Integer sortOrder) {
+    public ProductImageResponse uploadImage(MultipartFile file, Integer productId, Boolean isPrimary, Integer sortOrder) {
         // Cross-domain validation: ensure product exists and is active
         validateProductExists(productId);
 
@@ -56,41 +59,44 @@ public class ProductImageFacade {
         ProductImage savedImage = productImageCommandService.uploadImage(file, productId, isPrimary, sortOrder);
 
         log.info("Image uploaded successfully for product {}: {}", productId, savedImage.getImageUrl());
-        return savedImage;
+        return productImageMapper.mapToResponse(savedImage);
     }
 
     /**
      * Get all images for a product with product validation
      */
-    public List<ProductImage> getProductImages(Integer productId) {
+    public List<ProductImageResponse> getProductImages(Integer productId) {
         // Cross-domain validation: ensure product exists
         validateProductExists(productId);
 
-        return productImageQueryService.getProductImages(productId);
+        List<ProductImage> images = productImageQueryService.getProductImages(productId);
+        return productImageMapper.mapToResponseList(images);
     }
 
     /**
      * Get primary image for a product
      */
-    public Optional<ProductImage> getPrimaryImage(Integer productId) {
+    public Optional<ProductImageResponse> getPrimaryImage(Integer productId) {
         // Cross-domain validation: ensure product exists
         validateProductExists(productId);
 
-        return productImageQueryService.getPrimaryImage(productId);
+        return productImageQueryService.getPrimaryImage(productId)
+                .map(productImageMapper::mapToResponse);
     }
 
     /**
      * Get image by ID with validation
      */
-    public ProductImage getImageById(Integer imageId) {
-        return productImageQueryService.getImageById(imageId);
+    public ProductImageResponse getImageById(Integer imageId) {
+        ProductImage image = productImageQueryService.getImageById(imageId);
+        return productImageMapper.mapToResponse(image);
     }
 
     /**
      * Update image properties with business logic
      */
     @Transactional
-    public ProductImage updateImage(Integer imageId, UpdateImageRequest request) {
+    public ProductImageResponse updateImage(Integer imageId, UpdateImageRequest request) {
         ProductImage image = productImageQueryService.getImageById(imageId);
 
         // Business logic: handle primary image logic
@@ -98,7 +104,8 @@ public class ProductImageFacade {
             productImageCommandService.unsetAllPrimaryImages(image.getProductId());
         }
 
-        return productImageCommandService.updateImage(imageId, request);
+        ProductImage updatedImage = productImageCommandService.updateImage(imageId, request);
+        return productImageMapper.mapToResponse(updatedImage);
     }
 
     /**
@@ -140,13 +147,14 @@ public class ProductImageFacade {
      * Set image as primary with business logic
      */
     @Transactional
-    public ProductImage setPrimaryImage(Integer imageId) {
+    public ProductImageResponse setPrimaryImage(Integer imageId) {
         ProductImage image = productImageQueryService.getImageById(imageId);
 
         // Unset all other primary images for this product
         productImageCommandService.unsetAllPrimaryImages(image.getProductId());
 
-        return productImageCommandService.setPrimaryImage(imageId);
+        ProductImage updatedImage = productImageCommandService.setPrimaryImage(imageId);
+        return productImageMapper.mapToResponse(updatedImage);
     }
 
     /**
