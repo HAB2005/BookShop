@@ -19,56 +19,73 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
-    private final CorsConfigurationSource corsConfigurationSource;
+        private final JwtAuthenticationFilter jwtAuthFilter;
+        private final CustomAccessDeniedHandler accessDeniedHandler;
+        private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+        private final CorsConfigurationSource corsConfigurationSource;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                // Authentication endpoints - public
-                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/email/register", "/api/auth/email/login").permitAll()
-                .requestMatchers("/api/auth/google/login").permitAll()
-                .requestMatchers("/api/auth/phone/send-otp", "/api/auth/phone/verify-otp").permitAll()
-                // Product endpoints - public (for home/shop page)
-                .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/*", "/api/products/search",
-                        "/api/products/suggestions")
-                .permitAll()
-                // Product images - public read, admin write
-                .requestMatchers(HttpMethod.GET, "/api/product-images", "/api/product-images/*", 
-                        "/api/product-images/primary", "/api/product-images/stats")
-                .permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/product-images").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/product-images/*", "/api/product-images/reorder").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH, "/api/product-images/*/primary").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/product-images", "/api/product-images/*").hasRole("ADMIN")
-                // File serving - public
-                .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
-                // Product management - admin only
-                .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/products/*").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH, "/api/products/*/status").hasRole("ADMIN")
-                // Logout - authenticated
-                .requestMatchers("/api/auth/logout").authenticated()
-                // Role-based access
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
-                // User endpoints - authenticated
-                .requestMatchers("/api/user/**").authenticated()
-                // All other requests - authenticated
-                .anyRequest().authenticated())
-                .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exceptions -> exceptions
-                .accessDeniedHandler(accessDeniedHandler)
-                .authenticationEntryPoint(authenticationEntryPoint))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                                .csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(auth -> auth
+                                                // Authentication endpoints - public
+                                                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                                                .requestMatchers("/api/auth/email/register", "/api/auth/email/login")
+                                                .permitAll()
+                                                .requestMatchers("/api/auth/google/login").permitAll()
+                                                .requestMatchers("/api/auth/phone/send-otp",
+                                                                "/api/auth/phone/verify-otp")
+                                                .permitAll()
+                                                // Product endpoints - public (for home/shop page)
+                                                .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/*",
+                                                                "/api/products/search",
+                                                                "/api/products/suggestions")
+                                                .permitAll()
+                                                // Product images - public read, admin write
+                                                .requestMatchers(HttpMethod.GET, "/api/product-images",
+                                                                "/api/product-images/*",
+                                                                "/api/product-images/primary",
+                                                                "/api/product-images/stats")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/api/product-images")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.PUT, "/api/product-images/*",
+                                                                "/api/product-images/reorder")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.PATCH, "/api/product-images/*/primary")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/product-images",
+                                                                "/api/product-images/*")
+                                                .hasRole("ADMIN")
+                                                // File serving - public
+                                                .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
+                                                // Product management - admin only
+                                                .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.PUT, "/api/products/*").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.PATCH, "/api/products/*/status")
+                                                .hasRole("ADMIN")
+                                                // Logout - authenticated
+                                                .requestMatchers("/api/auth/logout").authenticated()
+                                                // Role-based access
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
+                                                // User endpoints - authenticated
+                                                .requestMatchers("/api/user/**").authenticated()
+                                                // Cart endpoints - authenticated
+                                                .requestMatchers("/api/cart/**").authenticated()
+                                                // Order endpoints - authenticated
+                                                .requestMatchers("/api/orders/**").authenticated()
+                                                // All other requests - authenticated
+                                                .anyRequest().authenticated())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .exceptionHandling(exceptions -> exceptions
+                                                .accessDeniedHandler(accessDeniedHandler)
+                                                .authenticationEntryPoint(authenticationEntryPoint))
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 }

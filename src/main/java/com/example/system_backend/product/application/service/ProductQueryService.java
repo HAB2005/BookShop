@@ -88,4 +88,14 @@ public class ProductQueryService {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
     }
+    
+    /**
+     * Get multiple products by IDs (Product entities only)
+     */
+    public List<Product> getProductsByIds(List<Integer> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            return List.of();
+        }
+        return productRepository.findAllById(productIds);
+    }
 }
