@@ -19,8 +19,6 @@ import com.example.system_backend.order.entity.OrderDetail;
 import com.example.system_backend.order.mapper.OrderMapper;
 import com.example.system_backend.payment.application.facade.PaymentFacade;
 import com.example.system_backend.payment.dto.PaymentMethodDto;
-import com.example.system_backend.payment.entity.Payment;
-import com.example.system_backend.payment.mapper.PaymentMapper;
 import com.example.system_backend.common.port.StockQueryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -49,7 +47,6 @@ public class OrderFacade {
     private final CartQueryPort cartQueryPort;
     private final CartClearPort cartClearPort;
     private final PaymentFacade paymentFacade;
-    private final PaymentMapper paymentMapper;
     private final StockQueryPort stockQueryPort;
 
     /**
@@ -205,9 +202,6 @@ public class OrderFacade {
      */
     @Transactional
     public CheckoutResponse checkoutCartWithPaymentMethod(Integer userId, PaymentMethodDto paymentMethodDto) {
-        // Convert DTO enum to entity enum
-        Payment.PaymentMethod paymentMethod = paymentMapper.toPaymentMethod(paymentMethodDto);
-        
         // Validate cart has items
         if (!cartQueryPort.hasCartItems(userId)) {
             throw new ValidationException("Cart is empty", "CART_EMPTY");

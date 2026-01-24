@@ -4,7 +4,6 @@ import com.example.system_backend.common.response.SuccessResponse;
 import com.example.system_backend.payment.application.facade.PaymentFacade;
 import com.example.system_backend.payment.dto.PaymentResponse;
 import com.example.system_backend.payment.dto.ProcessPaymentRequest;
-import com.example.system_backend.payment.entity.Payment;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

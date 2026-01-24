@@ -6,7 +6,6 @@ import com.example.system_backend.payment.application.facade.PaymentFacade;
 import com.example.system_backend.payment.application.service.PaymentQueryService;
 import com.example.system_backend.payment.dto.PaymentResponse;
 import com.example.system_backend.payment.dto.PaymentStatusFilter;
-import com.example.system_backend.payment.entity.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
