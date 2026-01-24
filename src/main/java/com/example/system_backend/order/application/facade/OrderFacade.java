@@ -17,6 +17,11 @@ import com.example.system_backend.common.exception.ValidationException;
 import com.example.system_backend.order.entity.Order;
 import com.example.system_backend.order.entity.OrderDetail;
 import com.example.system_backend.order.mapper.OrderMapper;
+import com.example.system_backend.payment.application.facade.PaymentFacade;
+import com.example.system_backend.payment.dto.PaymentMethodDto;
+import com.example.system_backend.payment.entity.Payment;
+import com.example.system_backend.payment.mapper.PaymentMapper;
+import com.example.system_backend.common.port.StockQueryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +48,9 @@ public class OrderFacade {
     private final ProductQueryPort productQueryPort;
     private final CartQueryPort cartQueryPort;
     private final CartClearPort cartClearPort;
+    private final PaymentFacade paymentFacade;
+    private final PaymentMapper paymentMapper;
+    private final StockQueryPort stockQueryPort;
 
     /**
      * Create new order - orchestrates validation and creation
@@ -51,6 +59,9 @@ public class OrderFacade {
     public OrderResponse createOrder(Integer userId, CreateOrderRequest request) {
         // Validate all products exist and are available
         validateProductsAvailability(request);
+        
+        // Check stock availability
+        validateStockAvailability(request);
 
         Order savedOrder = orderCommandService.createOrder(
                 userId,
@@ -69,6 +80,17 @@ public class OrderFacade {
 
             if (!productQueryPort.isProductAvailable(productId)) {
                 throw new ValidationException("Product with ID " + productId + " is not available");
+            }
+        }
+    }
+
+    /**
+     * Validate stock availability for order items
+     */
+    private void validateStockAvailability(CreateOrderRequest request) {
+        for (var item : request.getItems()) {
+            if (!stockQueryPort.hasStock(item.getProductId(), item.getQuantity())) {
+                throw new ValidationException("Insufficient stock for product ID: " + item.getProductId(), "INSUFFICIENT_STOCK");
             }
         }
     }
@@ -170,11 +192,22 @@ public class OrderFacade {
     // ==================== CHECKOUT OPERATIONS ====================
 
     /**
-     * Checkout cart - create order from cart items
+     * Checkout cart - create order from cart items and prepare for payment
      * This is the proper place for checkout logic as it creates an Order
      */
     @Transactional
     public CheckoutResponse checkoutCart(Integer userId) {
+        return checkoutCartWithPaymentMethod(userId, PaymentMethodDto.FAKE);
+    }
+
+    /**
+     * Checkout cart with specific payment method
+     */
+    @Transactional
+    public CheckoutResponse checkoutCartWithPaymentMethod(Integer userId, PaymentMethodDto paymentMethodDto) {
+        // Convert DTO enum to entity enum
+        Payment.PaymentMethod paymentMethod = paymentMapper.toPaymentMethod(paymentMethodDto);
+        
         // Validate cart has items
         if (!cartQueryPort.hasCartItems(userId)) {
             throw new ValidationException("Cart is empty", "CART_EMPTY");
@@ -182,6 +215,9 @@ public class OrderFacade {
 
         // Get cart items
         List<CartItemInfo> cartItems = cartQueryPort.getCartItemsForCheckout(userId);
+
+        // Validate stock availability for cart items
+        validateCartStockAvailability(cartItems);
 
         // Calculate total amount
         BigDecimal totalAmount = cartItems.stream()
@@ -206,6 +242,9 @@ public class OrderFacade {
         savedOrder.setOrderDetails(orderDetails);
         orderCommandService.saveOrder(savedOrder);
 
+        // Create payment record (INIT status)
+        var paymentResponse = paymentFacade.createPayment(savedOrder.getOrderId(), paymentMethodDto, totalAmount);
+
         // Clear cart after successful order creation
         cartClearPort.clearUserCart(userId);
 
@@ -213,8 +252,22 @@ public class OrderFacade {
             .orderId(savedOrder.getOrderId())
             .totalAmount(totalAmount)
             .status("PENDING")
-            .message("Order created successfully")
+            .message("Order created successfully. Ready for payment.")
+            .paymentId(paymentResponse.getPaymentId())
+            .paymentMethod(paymentMethodDto)
+            .paymentStatus(paymentResponse.getStatus())
             .build();
+    }
+
+    /**
+     * Validate stock availability for cart items
+     */
+    private void validateCartStockAvailability(List<CartItemInfo> cartItems) {
+        for (CartItemInfo item : cartItems) {
+            if (!stockQueryPort.hasStock(item.getProductId(), item.getQuantity())) {
+                throw new ValidationException("Insufficient stock for product ID: " + item.getProductId() + " in cart", "INSUFFICIENT_STOCK");
+            }
+        }
     }
 
     /**

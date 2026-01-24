@@ -5,6 +5,7 @@ import com.example.system_backend.common.response.PageResponse;
 import com.example.system_backend.common.response.SuccessResponse;
 import com.example.system_backend.order.application.facade.OrderFacade;
 import com.example.system_backend.order.dto.CheckoutResponse;
+import com.example.system_backend.order.dto.CheckoutWithPaymentRequest;
 import com.example.system_backend.order.dto.CreateOrderRequest;
 import com.example.system_backend.order.dto.OrderListResponse;
 import com.example.system_backend.order.dto.OrderResponse;
@@ -99,6 +100,21 @@ public class OrderController {
         log.info("User {} checking out cart", userId);
         
         CheckoutResponse response = orderFacade.checkoutCart(userId);
+        return ResponseEntity.ok(SuccessResponse.success(response));
+    }
+
+    /**
+     * Checkout cart with specific payment method
+     */
+    @PostMapping("/checkout-with-payment")
+    public ResponseEntity<SuccessResponse<CheckoutResponse>> checkoutWithPayment(
+            @Valid @RequestBody CheckoutWithPaymentRequest request,
+            Authentication authentication) {
+        
+        Integer userId = Integer.valueOf(authentication.getName());
+        log.info("User {} checking out cart with payment method: {}", userId, request.getPaymentMethod());
+        
+        CheckoutResponse response = orderFacade.checkoutCartWithPaymentMethod(userId, request.getPaymentMethod());
         return ResponseEntity.ok(SuccessResponse.success(response));
     }
 }

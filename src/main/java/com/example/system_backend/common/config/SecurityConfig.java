@@ -66,6 +66,12 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.PUT, "/api/products/*").hasRole("ADMIN")
                                                 .requestMatchers(HttpMethod.PATCH, "/api/products/*/status")
                                                 .hasRole("ADMIN")
+                                                // Payment endpoints - authenticated users
+                                                .requestMatchers("/api/payments/**").authenticated()
+                                                // Stock endpoints - admin only
+                                                .requestMatchers("/api/admin/stock/**").hasRole("ADMIN")
+                                                // Admin payment endpoints - admin only
+                                                .requestMatchers("/api/admin/payments/**").hasRole("ADMIN")
                                                 // Logout - authenticated
                                                 .requestMatchers("/api/auth/logout").authenticated()
                                                 // Role-based access
