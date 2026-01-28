@@ -46,7 +46,7 @@ public class CartFacade {
     /**
      * Get user's cart with product information
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public CartResponse getCart(Integer userId) {
         Cart cart = cartQueryService.getOrCreateCartByUserId(userId);
         
@@ -77,6 +77,9 @@ public class CartFacade {
         // Get product information (cross-domain call)
         Product product = productQueryService.getProductById(request.getProductId());
         
+        // TODO: Validate stock availability when stock management is implemented
+        // validateStockAvailability(request.getProductId(), request.getQuantity(), cart.getCartId());
+        
         // Add item to cart
         cartCommandService.addItemToCart(cart, product, request);
         
@@ -92,6 +95,9 @@ public class CartFacade {
         // Get cart item and validate ownership
         CartItem cartItem = cartQueryService.getCartItemById(cartItemId);
         cartValidationService.validateCartItemForUpdate(cartItem, userId);
+        
+        // TODO: Validate stock availability when stock management is implemented
+        // validateStockAvailability(cartItem.getProductId(), request.getQuantity(), cartItem.getCart().getCartId());
         
         // Update cart item
         cartCommandService.updateCartItem(cartItem, request);
@@ -126,4 +132,38 @@ public class CartFacade {
         
         cartCommandService.clearCart(cart.getCartId());
     }
+    
+    
+    /**
+     * TODO: Implement stock validation when stock management feature is ready
+     * Validate stock availability for cart operations
+     */
+    /*
+    private void validateStockAvailability(Integer productId, Integer requestedQuantity, Integer cartId) {
+        // Get current stock
+        Stock stock = stockQueryService.getStockByProductIdOrNull(productId);
+        
+        // Auto-create stock if not exists (for products without stock configuration)
+        if (stock == null) {
+            try {
+                // Create default stock with reasonable quantity
+                stock = stockCommandService.createStock(productId, 100, 5);
+                System.out.println("Auto-created stock for product " + productId + " with 100 units");
+            } catch (Exception e) {
+                throw new BusinessException("Product stock not available and cannot be created");
+            }
+        }
+        
+        // Calculate total quantity needed (new quantity, not additional)
+        int totalQuantityNeeded = requestedQuantity;
+        
+        // Check if enough stock available
+        if (!stock.hasStock(totalQuantityNeeded)) {
+            throw new BusinessException(
+                String.format("Insufficient stock. Available: %d, Requested: %d", 
+                    stock.getAvailableQuantity(), totalQuantityNeeded)
+            );
+        }
+    }
+    */
 }

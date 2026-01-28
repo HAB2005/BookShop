@@ -15,6 +15,7 @@
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>17</java.version>
+        <start-class>com.example.system_backend.SystemBackendApplication</start-class>
     </properties>
     <dependencies>
         <!-- Spring Boot Web - REST API -->
@@ -140,6 +141,17 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.example.system_backend.SystemBackendApplication</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.example.system_backend.SystemBackendApplication</mainClass>
+                </configuration>
             </plugin>        
         </plugins>
     </build>

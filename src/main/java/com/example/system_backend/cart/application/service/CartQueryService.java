@@ -33,6 +33,7 @@ public class CartQueryService {
     /**
      * Get cart by user ID, create if not exists
      */
+    @Transactional
     public Cart getOrCreateCartByUserId(Integer userId) {
         return cartRepository.findByUserIdWithItems(userId)
                 .orElseGet(() -> {
