@@ -10,8 +10,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 /**
- * ProductQueryAdapter implements ProductQueryPort to provide product information
- * to other modules without creating direct dependencies.
+ * Adapter that implements ProductQueryPort using product domain services
  */
 @Component
 @RequiredArgsConstructor
@@ -50,7 +49,7 @@ public class ProductQueryAdapter implements ProductQueryPort {
     }
 
     @Override
-    public Optional<ProductQueryPort.ProductInfoPort> getProductInfo(Integer productId) {
+    public Optional<ProductInfoPort> getProductInfo(Integer productId) {
         try {
             Product product = productQueryService.getProductById(productId);
             return Optional.of(new ProductInfoImpl(product));
@@ -62,7 +61,7 @@ public class ProductQueryAdapter implements ProductQueryPort {
     /**
      * Implementation of ProductInfoPort interface
      */
-    private static class ProductInfoImpl implements ProductQueryPort.ProductInfoPort {
+    private static class ProductInfoImpl implements ProductInfoPort {
         private final Product product;
 
         public ProductInfoImpl(Product product) {

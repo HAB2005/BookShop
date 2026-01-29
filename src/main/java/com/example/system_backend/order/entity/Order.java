@@ -1,6 +1,7 @@
 package com.example.system_backend.order.entity;
 
 import com.example.system_backend.common.enums.OrderStatus;
+import com.example.system_backend.common.converter.OrderStatusConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString(exclude = {"orderDetails"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "order")
+@Table(name = "`order`")
 public class Order {
 
     @EqualsAndHashCode.Include
@@ -28,7 +29,7 @@ public class Order {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = OrderStatusConverter.class)
     @Column(name = "status", nullable = false)
     private OrderStatus status = OrderStatus.PENDING;
 

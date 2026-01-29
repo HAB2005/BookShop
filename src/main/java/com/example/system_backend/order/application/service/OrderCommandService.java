@@ -8,6 +8,7 @@ import com.example.system_backend.order.domain.OrderItemData;
 import com.example.system_backend.order.entity.Order;
 import com.example.system_backend.order.entity.OrderDetail;
 import com.example.system_backend.order.repository.OrderRepository;
+import com.example.system_backend.order.repository.OrderDetailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.function.Function;
 public class OrderCommandService {
 
     private final OrderRepository orderRepository;
+    private final OrderDetailRepository orderDetailRepository;
     private final OrderValidationService orderValidationService;
 
     /**
@@ -98,5 +100,13 @@ public class OrderCommandService {
     @Transactional
     public Order saveOrder(Order order) {
         return orderRepository.save(order);
+    }
+
+    /**
+     * Save order detail
+     */
+    @Transactional
+    public OrderDetail saveOrderDetail(OrderDetail orderDetail) {
+        return orderDetailRepository.save(orderDetail);
     }
 }

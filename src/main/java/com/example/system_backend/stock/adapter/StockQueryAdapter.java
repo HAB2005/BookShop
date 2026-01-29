@@ -6,8 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * StockQueryAdapter implements StockQueryPort to provide stock information
- * to other modules without exposing internal implementation
+ * Implementation of StockQueryPort using actual stock services
  */
 @Component
 @RequiredArgsConstructor

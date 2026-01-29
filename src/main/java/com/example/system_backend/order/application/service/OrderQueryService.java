@@ -33,7 +33,7 @@ public class OrderQueryService {
      * Get order by ID and user ID (for security)
      */
     public Order getOrderByIdAndUserId(Integer orderId, Integer userId) {
-        return orderRepository.findByOrderIdAndUserId(orderId, userId)
+        return orderRepository.findByOrderIdAndUserIdWithDetails(orderId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
     }
 

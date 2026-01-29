@@ -8,6 +8,7 @@ import com.example.system_backend.order.application.service.OrderCommandService;
 import com.example.system_backend.order.application.service.OrderQueryService;
 import com.example.system_backend.order.dto.CheckoutResponse;
 import com.example.system_backend.order.dto.CreateOrderRequest;
+import com.example.system_backend.order.dto.OrderDetailResponse;
 import com.example.system_backend.order.dto.OrderListResponse;
 import com.example.system_backend.order.dto.OrderResponse;
 import com.example.system_backend.order.dto.UpdateOrderStatusRequest;
@@ -20,7 +21,9 @@ import com.example.system_backend.order.mapper.OrderMapper;
 import com.example.system_backend.payment.application.facade.PaymentFacade;
 import com.example.system_backend.payment.dto.PaymentMethodDto;
 import com.example.system_backend.common.port.StockQueryPort;
+import com.example.system_backend.common.port.StockCommandPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +39,7 @@ import java.util.stream.Collectors;
  * OrderFacade orchestrates order operations across multiple services.
  * Handles cross-domain coordination and DTO mapping.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderFacade {
@@ -48,6 +52,7 @@ public class OrderFacade {
     private final CartClearPort cartClearPort;
     private final PaymentFacade paymentFacade;
     private final StockQueryPort stockQueryPort;
+    private final StockCommandPort stockCommandPort;
 
     /**
      * Create new order - orchestrates validation and creation
@@ -218,26 +223,42 @@ public class OrderFacade {
             .map(CartItemInfo::getSubtotal)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Create order
+        // Create order with order details in one transaction
         Order order = new Order();
         order.setUserId(userId);
         order.setStatus(OrderStatus.PENDING);
         order.setTotalAmount(totalAmount);
 
-        // Save order and get ID
-        Order savedOrder = orderCommandService.saveOrder(order);
-
-        // Create order details
+        // Create order details and set bidirectional relationship
         List<OrderDetail> orderDetails = cartItems.stream()
-            .map(item -> createOrderDetailFromCartItem(savedOrder, item))
+            .map(item -> {
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setOrder(order); // Set parent reference
+                orderDetail.setProductId(item.getProductId());
+                orderDetail.setQuantity(item.getQuantity());
+                orderDetail.setUnitPrice(item.getUnitPrice());
+                return orderDetail;
+            })
             .collect(Collectors.toList());
 
-        // Set order details
-        savedOrder.setOrderDetails(orderDetails);
-        orderCommandService.saveOrder(savedOrder);
+        // Set order details to order (bidirectional relationship)
+        order.setOrderDetails(orderDetails);
+
+        // Save order with cascade - this will save both order and order details
+        Order savedOrder = orderCommandService.saveOrder(order);
 
         // Create payment record (INIT status)
         var paymentResponse = paymentFacade.createPayment(savedOrder.getOrderId(), paymentMethodDto, totalAmount);
+
+        // Reduce stock for each product after successful order creation
+        for (CartItemInfo item : cartItems) {
+            boolean stockReduced = stockCommandPort.reduceStock(item.getProductId(), item.getQuantity());
+            if (!stockReduced) {
+                // In a real system, you might want to rollback the order here
+                // For now, just log a warning
+                System.out.println("Warning: Could not reduce stock for product " + item.getProductId());
+            }
+        }
 
         // Clear cart after successful order creation
         cartClearPort.clearUserCart(userId);
@@ -262,17 +283,5 @@ public class OrderFacade {
                 throw new ValidationException("Insufficient stock for product ID: " + item.getProductId() + " in cart", "INSUFFICIENT_STOCK");
             }
         }
-    }
-
-    /**
-     * Create OrderDetail from CartItemInfo
-     */
-    private OrderDetail createOrderDetailFromCartItem(Order order, CartItemInfo cartItem) {
-        OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setOrder(order);
-        orderDetail.setProductId(cartItem.getProductId());
-        orderDetail.setQuantity(cartItem.getQuantity());
-        orderDetail.setUnitPrice(cartItem.getUnitPrice());
-        return orderDetail;
     }
 }

@@ -4,6 +4,7 @@ import com.example.system_backend.cart.application.facade.CartFacade;
 import com.example.system_backend.cart.dto.AddCartItemRequest;
 import com.example.system_backend.cart.dto.CartResponse;
 import com.example.system_backend.cart.dto.UpdateCartItemRequest;
+import com.example.system_backend.common.response.SuccessResponse;
 import com.example.system_backend.common.util.AuthenticationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -37,60 +38,60 @@ public class CartController {
      * GET /api/cart - View cart
      */
     @GetMapping
-    public ResponseEntity<CartResponse> getCart(HttpServletRequest request) {
+    public ResponseEntity<SuccessResponse<CartResponse>> getCart(HttpServletRequest request) {
         Integer userId = getUserIdFromRequest(request);
         CartResponse cart = cartFacade.getCart(userId);
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(SuccessResponse.success(cart));
     }
 
     /**
      * POST /api/cart/items - Add item to cart
      */
     @PostMapping("/items")
-    public ResponseEntity<CartResponse> addItemToCart(
+    public ResponseEntity<SuccessResponse<CartResponse>> addItemToCart(
             @Valid @RequestBody AddCartItemRequest request,
             HttpServletRequest httpRequest) {
         Integer userId = getUserIdFromRequest(httpRequest);
         CartResponse cart = cartFacade.addItemToCart(userId, request);
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(SuccessResponse.success(cart));
     }
 
     /**
      * PUT /api/cart/items/{id} - Update quantity
      */
     @PutMapping("/items/{id}")
-    public ResponseEntity<CartResponse> updateCartItem(
+    public ResponseEntity<SuccessResponse<CartResponse>> updateCartItem(
             @PathVariable Integer id,
             @Valid @RequestBody UpdateCartItemRequest request,
             HttpServletRequest httpRequest) {
         Integer userId = getUserIdFromRequest(httpRequest);
         CartResponse cart = cartFacade.updateCartItem(userId, id, request);
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(SuccessResponse.success(cart));
     }
 
     /**
      * DELETE /api/cart/items/{id} - Remove item
      */
     @DeleteMapping("/items/{id}")
-    public ResponseEntity<CartResponse> removeCartItem(
+    public ResponseEntity<SuccessResponse<CartResponse>> removeCartItem(
             @PathVariable Integer id,
             HttpServletRequest httpRequest) {
         Integer userId = getUserIdFromRequest(httpRequest);
         CartResponse cart = cartFacade.removeCartItem(userId, id);
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(SuccessResponse.success(cart));
     }
 
     /**
      * DELETE /api/cart - Clear cart
      */
     @DeleteMapping
-    public ResponseEntity<Map<String, String>> clearCart(HttpServletRequest request) {
+    public ResponseEntity<SuccessResponse<Map<String, String>>> clearCart(HttpServletRequest request) {
         Integer userId = getUserIdFromRequest(request);
         cartFacade.clearCart(userId);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Cart cleared successfully");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(SuccessResponse.success(response));
     }
 
     /**

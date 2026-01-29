@@ -1,6 +1,7 @@
 package com.example.system_backend.product.controller;
 
 import com.example.system_backend.common.response.PageResponse;
+import com.example.system_backend.common.port.ProductQueryPort;
 import com.example.system_backend.product.application.facade.ProductFacade;
 import com.example.system_backend.product.book.dto.BookSearchResponse;
 import com.example.system_backend.product.book.dto.BookSuggestionResponse;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
@@ -35,6 +37,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductFacade productService;
+    private final ProductQueryPort productQueryPort;
 
     @GetMapping
     public ResponseEntity<PageResponse<ProductListResponse>> getProducts(
@@ -119,5 +122,26 @@ public class ProductController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Product categories updated successfully");
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Test endpoint to debug product query adapter
+     */
+    @GetMapping("/debug/product-name/{productId}")
+    public ResponseEntity<Map<String, Object>> debugProductName(@PathVariable Integer productId) {
+        Map<String, Object> debug = new HashMap<>();
+        
+        try {
+            Optional<String> productName = productQueryPort.getProductName(productId);
+            debug.put("found", productName.isPresent());
+            debug.put("productName", productName.orElse("Not found"));
+            debug.put("productId", productId);
+        } catch (Exception e) {
+            debug.put("found", false);
+            debug.put("error", e.getMessage());
+            debug.put("productId", productId);
+        }
+        
+        return ResponseEntity.ok(debug);
     }
 }
