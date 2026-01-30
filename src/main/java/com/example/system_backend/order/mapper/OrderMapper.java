@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,7 +52,7 @@ public class OrderMapper {
         response.setStatus(order.getStatus());
         response.setTotalAmount(order.getTotalAmount());
         response.setOrderDate(order.getOrderDate());
-        
+
         if (order.getOrderDetails() != null) {
             response.setItemCount(order.getOrderDetails().size());
         } else {
@@ -71,12 +70,12 @@ public class OrderMapper {
         OrderDetailResponse response = new OrderDetailResponse();
         response.setOrderDetailId(orderDetail.getOrderDetailId());
         response.setProductId(orderDetail.getProductId());
-        
+
         // Get product name from ProductQueryPort
         String productName = productQueryPort.getProductName(orderDetail.getProductId())
                 .orElse("Product " + orderDetail.getProductId());
         response.setProductName(productName);
-        
+
         response.setQuantity(orderDetail.getQuantity());
         response.setUnitPrice(orderDetail.getUnitPrice());
         response.setSubtotal(orderDetail.getSubtotal());

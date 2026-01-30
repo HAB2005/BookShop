@@ -8,7 +8,6 @@ import com.example.system_backend.order.application.service.OrderCommandService;
 import com.example.system_backend.order.application.service.OrderQueryService;
 import com.example.system_backend.order.dto.CheckoutResponse;
 import com.example.system_backend.order.dto.CreateOrderRequest;
-import com.example.system_backend.order.dto.OrderDetailResponse;
 import com.example.system_backend.order.dto.OrderListResponse;
 import com.example.system_backend.order.dto.OrderResponse;
 import com.example.system_backend.order.dto.UpdateOrderStatusRequest;
@@ -61,7 +60,7 @@ public class OrderFacade {
     public OrderResponse createOrder(Integer userId, CreateOrderRequest request) {
         // Validate all products exist and are available
         validateProductsAvailability(request);
-        
+
         // Check stock availability
         validateStockAvailability(request);
 
@@ -92,7 +91,8 @@ public class OrderFacade {
     private void validateStockAvailability(CreateOrderRequest request) {
         for (var item : request.getItems()) {
             if (!stockQueryPort.hasStock(item.getProductId(), item.getQuantity())) {
-                throw new ValidationException("Insufficient stock for product ID: " + item.getProductId(), "INSUFFICIENT_STOCK");
+                throw new ValidationException("Insufficient stock for product ID: " + item.getProductId(),
+                        "INSUFFICIENT_STOCK");
             }
         }
     }
@@ -220,8 +220,8 @@ public class OrderFacade {
 
         // Calculate total amount
         BigDecimal totalAmount = cartItems.stream()
-            .map(CartItemInfo::getSubtotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(CartItemInfo::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // Create order with order details in one transaction
         Order order = new Order();
@@ -231,15 +231,15 @@ public class OrderFacade {
 
         // Create order details and set bidirectional relationship
         List<OrderDetail> orderDetails = cartItems.stream()
-            .map(item -> {
-                OrderDetail orderDetail = new OrderDetail();
-                orderDetail.setOrder(order); // Set parent reference
-                orderDetail.setProductId(item.getProductId());
-                orderDetail.setQuantity(item.getQuantity());
-                orderDetail.setUnitPrice(item.getUnitPrice());
-                return orderDetail;
-            })
-            .collect(Collectors.toList());
+                .map(item -> {
+                    OrderDetail orderDetail = new OrderDetail();
+                    orderDetail.setOrder(order); // Set parent reference
+                    orderDetail.setProductId(item.getProductId());
+                    orderDetail.setQuantity(item.getQuantity());
+                    orderDetail.setUnitPrice(item.getUnitPrice());
+                    return orderDetail;
+                })
+                .collect(Collectors.toList());
 
         // Set order details to order (bidirectional relationship)
         order.setOrderDetails(orderDetails);
@@ -264,14 +264,14 @@ public class OrderFacade {
         cartClearPort.clearUserCart(userId);
 
         return CheckoutResponse.builder()
-            .orderId(savedOrder.getOrderId())
-            .totalAmount(totalAmount)
-            .status("PENDING")
-            .message("Order created successfully. Ready for payment.")
-            .paymentId(paymentResponse.getPaymentId())
-            .paymentMethod(paymentMethodDto)
-            .paymentStatus(paymentResponse.getStatus())
-            .build();
+                .orderId(savedOrder.getOrderId())
+                .totalAmount(totalAmount)
+                .status("PENDING")
+                .message("Order created successfully. Ready for payment.")
+                .paymentId(paymentResponse.getPaymentId())
+                .paymentMethod(paymentMethodDto)
+                .paymentStatus(paymentResponse.getStatus())
+                .build();
     }
 
     /**
@@ -280,7 +280,8 @@ public class OrderFacade {
     private void validateCartStockAvailability(List<CartItemInfo> cartItems) {
         for (CartItemInfo item : cartItems) {
             if (!stockQueryPort.hasStock(item.getProductId(), item.getQuantity())) {
-                throw new ValidationException("Insufficient stock for product ID: " + item.getProductId() + " in cart", "INSUFFICIENT_STOCK");
+                throw new ValidationException("Insufficient stock for product ID: " + item.getProductId() + " in cart",
+                        "INSUFFICIENT_STOCK");
             }
         }
     }
